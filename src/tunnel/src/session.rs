@@ -1,6 +1,6 @@
 use std::net::SocketAddr;
 
-use crate::pipe::{pipes, Pipes};
+use crate::pipe::{Pipes, pipes};
 use crate::traits::{Readable, Writable};
 
 pub struct SessionMeta {

@@ -1,0 +1,74 @@
+name: Rust
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - main
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # Lint the formatting of the codebase.
+  lint-formatting:
+    name: Check Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: dtolnay/rust-toolchain@nightly
+        with: { components: rustfmt }
+      - run: cargo xtask lint-formatting
+
+  # Check for typos in the codebase.
+  # See <https://github.com/crate-ci/typos/>
+  lint-typos:
+    name: Check Typos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: crate-ci/typos@master
+
+  # Check for any disallowed dependencies in the codebase due to license / security issues.
+  # See <https://github.com/EmbarkStudios/cargo-deny>
+  dependencies:
+    name: Check Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: EmbarkStudios/cargo-deny-action@v2.0.11
+
+  # Check for any unused dependencies in the codebase.
+  # See <https://github.com/bnjbvr/cargo-machete/>
+  cargo-machete:
+    name: Check Unused Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2.7.8
+      - uses: bnjbvr/cargo-machete@v0.8.0
+
+  # Run cargo clippy.
+  lint-clippy:
+    name: Check Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: dtolnay/rust-toolchain@stable
+        with: { components: clippy }
+      - uses: Swatinem/rust-cache@v2.7.8
+      - run: cargo xtask lint-clippy
+
+  # Run markdownlint on all markdown files in the repository.
+  lint-markdown:
+    name: Check Markdown
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: DavidAnson/markdownlint-cli2-action@v19.1.0
+        with:
+          globs: |
+            '**/*.md'
+            '!target'

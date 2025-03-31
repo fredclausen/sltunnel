@@ -1,5 +1,6 @@
 [workspace]
-members = ["src/client", "src/tunnel"]
+members = ["src/client", "src/tunnel", "xtask"]
+default-members = ["src/client", "src/tunnel"]
 
 [workspace.package]
 description = "A simple TLS tunneling implementation, written in Rust."
@@ -31,3 +32,16 @@ tokio = { version = "1.44.1", features = [
     "rt-multi-thread",
 ] }
 tokio-rustls = "0.26.2"
+
+cargo_metadata = "0.19.2"
+clap = { version = "4.5.34", features = ["derive"] }
+clap-cargo = { version = "0.15.2", features = ["cargo_metadata"] }
+clap-verbosity-flag = "3.0.2"
+color-eyre = "0.6.3"
+duct = "0.13.7"
+tracing = "0.1.41"
+tracing-log = "0.2.0"
+tracing-subscriber = { version = "0.3.19", features = [
+    "env-filter",
+    "parking_lot",
+] }

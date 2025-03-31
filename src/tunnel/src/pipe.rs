@@ -1,4 +1,4 @@
-use tokio::io::{copy, split, ReadHalf, Result, WriteHalf};
+use tokio::io::{ReadHalf, Result, WriteHalf, copy, split};
 
 use crate::traits::{Readable, Writable};
 
