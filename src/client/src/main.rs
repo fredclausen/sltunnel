@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate log;
 
+use rustls_platform_verifier::ConfigVerifierExt;
 use sdre_rust_logging::SetupLogging;
 use std::env::args;
 use std::error::Error;
@@ -19,9 +20,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     }
 
     let root_store = tunnel::rustls::RootCertStore::empty();
-    let client_config = ClientConfig::builder()
-        .with_root_certificates(root_store)
-        .with_no_client_auth();
+    let client_config = ClientConfig::with_platform_verifier();
 
     info!("Loaded certificates.");
 
