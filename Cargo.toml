@@ -1,19 +1,33 @@
-[package]
-name = "sltunnel"
+[workspace]
+members = ["src/client", "src/tunnel"]
+
+[workspace.package]
 description = "A simple TLS tunneling implementation, written in Rust."
-version = "0.1.0"
+version = "0.2.0"
 license = "MIT"
 license-file = "LICENCE.md"
 readme = "README.md"
-homepage = "https://github.com/siketyan/sltunnel"
-repository = "https://github.com/siketyan/sltunnel"
-documentation = "https://github.com/siketyan/sltunnel/#readme"
+homepage = "https://github.com/fredclausen/sltunnel"
+repository = "https://github.com/fredclausen/sltunnel"
+documentation = "https://github.com/fredclausen/sltunnel/#readme"
 keywords = ["rust-library", "tls-tunnel", "firewall-bypass"]
-authors = ["Naoki Ikeguchi <root@siketyan.dev>"]
-edition = "2018"
+authors = [
+    "Naoki Ikeguchi <root@siketyan.dev>",
+    "Fred Clausen <43556888+fredclausen@users.noreply.github.com>",
+]
+edition = "2024"
+rust-version = "1.85.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
-tokio = { version = "0.2", features = ["io-util", "macros", "tcp", "rt-core"] }
-tokio-rustls = "0.14"
+[workspace.dependencies]
+log = "0.4.27"
+sdre-rust-logging = "0.3.15"
+tokio = { version = "1.44.1", features = [
+    "io-util",
+    "net",
+    "rt",
+    "macros",
+    "rt-multi-thread",
+] }
+tokio-rustls = "0.26.2"
