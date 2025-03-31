@@ -19,7 +19,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
         return Ok(());
     }
 
-    let root_store = tunnel::rustls::RootCertStore::empty();
     let client_config = ClientConfig::with_platform_verifier();
 
     info!("Loaded certificates.");
