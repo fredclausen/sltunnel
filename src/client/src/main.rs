@@ -1,13 +1,68 @@
 #[macro_use]
 extern crate log;
 
-use rustls_platform_verifier::ConfigVerifierExt;
 use sdre_rust_logging::SetupLogging;
 use std::env::args;
 use std::error::Error;
 use std::net::ToSocketAddrs;
 use tunnel::Client;
-use tunnel::rustls::ClientConfig;
+use tunnel::rustls::client::danger::{
+    HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier,
+};
+use tunnel::rustls::pki_types::{CertificateDer, ServerName, UnixTime};
+use tunnel::rustls::{ClientConfig, DigitallySignedStruct, SignatureScheme};
+
+#[derive(Debug)]
+struct Verifier {}
+
+impl ServerCertVerifier for Verifier {
+    fn verify_server_cert(
+        &self,
+        _end_entity: &CertificateDer<'_>,
+        _intermediates: &[CertificateDer<'_>],
+        _server_name: &ServerName<'_>,
+        _ocsp_response: &[u8],
+        _now: UnixTime,
+    ) -> std::result::Result<
+        tunnel::rustls::client::danger::ServerCertVerified,
+        tunnel::rustls::Error,
+    > {
+        Ok(ServerCertVerified::assertion())
+    }
+    fn verify_tls12_signature(
+        &self,
+        _message: &[u8],
+        _cert: &CertificateDer<'_>,
+        _dss: &DigitallySignedStruct,
+    ) -> std::result::Result<
+        tunnel::rustls::client::danger::HandshakeSignatureValid,
+        tunnel::rustls::Error,
+    > {
+        Ok(HandshakeSignatureValid::assertion())
+    }
+    fn verify_tls13_signature(
+        &self,
+        _message: &[u8],
+        _cert: &CertificateDer<'_>,
+        _dss: &DigitallySignedStruct,
+    ) -> std::result::Result<
+        tunnel::rustls::client::danger::HandshakeSignatureValid,
+        tunnel::rustls::Error,
+    > {
+        Ok(HandshakeSignatureValid::assertion())
+    }
+    fn supported_verify_schemes(&self) -> Vec<SignatureScheme> {
+        vec![
+            SignatureScheme::ED25519,
+            SignatureScheme::RSA_PSS_SHA256,
+            SignatureScheme::RSA_PSS_SHA384,
+            SignatureScheme::RSA_PSS_SHA512,
+            SignatureScheme::ECDSA_NISTP256_SHA256,
+            SignatureScheme::ECDSA_NISTP384_SHA384,
+            SignatureScheme::ECDSA_NISTP521_SHA512,
+        ]
+    }
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -19,9 +74,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
         return Ok(());
     }
 
-    let client_config = ClientConfig::with_platform_verifier();
-
-    info!("Loaded certificates.");
+    let client_config = ClientConfig::builder()
+        .dangerous()
+        .with_custom_certificate_verifier(std::sync::Arc::new(Verifier {}))
+        .with_no_client_auth();
 
     let hostname = args[3].to_string();
 
@@ -67,7 +123,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
     );
 
     loop {
-        let (meta, pipes) = client.wait_for_session().await?;
+        let (meta, pipes) = match client.wait_for_session().await {
+            Ok(session) => session,
+            Err(e) => {
+                error!("Failed to create session: {}", e);
+                continue;
+            }
+        };
+
         let (mut inbound, mut outbound) = pipes;
 
         tokio::spawn(async move { inbound.run().await });
