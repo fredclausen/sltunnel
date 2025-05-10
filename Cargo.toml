@@ -38,7 +38,7 @@ clap = { version = "4.5.34", features = ["derive"] }
 clap-cargo = { version = "0.15.2", features = ["cargo_metadata"] }
 clap-verbosity-flag = "3.0.2"
 color-eyre = "0.6.3"
-duct = "0.13.7"
+duct = "1.0.0"
 tracing = "0.1.41"
 tracing-log = "0.2.0"
 tracing-subscriber = { version = "0.3.19", features = [
