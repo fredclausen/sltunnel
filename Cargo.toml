@@ -35,7 +35,7 @@ tokio-rustls = "0.26.2"
 
 cargo_metadata = "0.19.2"
 clap = { version = "4.5.34", features = ["derive"] }
-clap-cargo = { version = "0.15.2", features = ["cargo_metadata"] }
+clap-cargo = { version = "0.16.0", features = ["cargo_metadata"] }
 clap-verbosity-flag = "3.0.2"
 color-eyre = "0.6.3"
 duct = "0.13.7"
